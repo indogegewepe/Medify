@@ -28,6 +28,7 @@
         var filter_nama = $('#filter-nama').val()
         var filter_harga_min = $('#filter-harga-min').val()
         var filter_harga_max = $('#filter-harga-max').val()
+        var filter_kategori = $('#filter-kategori').val()
         dataTableObj.clear().draw();
 
         $.ajax({
@@ -35,29 +36,36 @@
             dataType: 'json',
             tryCount: 0,
             retryLimit: 3,
-            data: 'kode=' + filter_kode + '&nama=' + filter_nama + '&hargamin=' + filter_harga_min + '&hargamax=' + filter_harga_max,
+            data: {
+                kode: filter_kode,
+                nama: filter_nama,
+                hargamin: filter_harga_min,
+                hargamax: filter_harga_max,
+                kategori_id: filter_kategori,
+            },
             success: function(results) {
                 var data = results.data
 
                 $.each(data, function(index, item) {
-                    array_temp = [];
                     var harga_jual = item.harga_beli + item.harga_beli * item.laba / 100;
                     harga_jual = Math.round(harga_jual)
                     var kode = item.kode;
+                    var kategori = item.kategori ? item.kategori.nama : '-';
 
                     var html = `<a href="{{url('master-items/view/')}}/` + kode + `" class="btn btn-primary">View</a>`
 
-                    $.each(item, function(obj_name, obj_value) {
-                        if (obj_name == 'laba') return false;
-                        array_temp.push(obj_value)
-                    })
-                    array_temp.push(harga_jual)
-                    array_temp.push(item.supplier)
-                    array_temp.push(html)
-
-
-                    dataTableObj.row.add(array_temp).draw(true);
+                    dataTableObj.row.add([
+                        item.kode,
+                        item.nama,
+                        kategori,
+                        item.jenis,
+                        item.harga_beli,
+                        harga_jual,
+                        item.supplier,
+                        html,
+                    ]);
                 });
+                dataTableObj.draw(true);
                 $('#loading-filter').hide();
             },
             error: function(xhr, textStatus, errorThrown) {

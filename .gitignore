@@ -9,7 +9,6 @@
 /public/foto
 /storage/*.key
 /vendor
-composer.lock
 .env
 .env.backup
 .env.production
